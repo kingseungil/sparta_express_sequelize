@@ -1,8 +1,9 @@
 # 내일배움캠프
+## node 숙련주차 개인과제
 ![image](https://user-images.githubusercontent.com/109774037/208811664-779b844f-a5cf-4774-844b-5893c70bf757.png)
 
 
-## node 숙련주차 개인과제
+
 
 1. 회원 가입 API
     - 닉네임은 `최소 3자 이상, 알파벳 대소문자(a~z, A~Z), 숫자(0~9)`로 구성하기
