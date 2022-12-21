@@ -89,6 +89,7 @@ router.post("/login", async (req, res) => {
     };
     res.send({
         token: jwt.sign(payload, secretKey, option),
+        nickname,
     });
 });
 

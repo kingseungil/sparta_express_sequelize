@@ -1,0 +1,550 @@
+openapi: 3.0.0
+info:
+    description: This is Sparta API
+    version: 1.0.0
+    title: Sparta_express_sequelize
+    contact:
+        email: flykim5115@gmail.com
+servers:
+    - url: "http://localhost:3000"
+tags:
+    - name: posts
+      description: 게시글
+    - name: comments
+      description: 댓글
+    - name: user
+      description: 회원
+
+paths:
+    /api/signup:
+        post:
+            tags:
+                - user
+            summary: 회원가입
+            description: ㅎㅇ~
+            operationId: signup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UserRegistration"
+                required: true
+            responses:
+                "201":
+                    description: Created
+                    content:
+                        application/json:
+                            schema:
+                                properties:
+                                    message:
+                                        type: string
+                                        example: 회원가입 성공~
+                "400":
+                    description: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorApiResponse"
+                "412":
+                    description: User already exists
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorApiResponse"
+    /api/login:
+        post:
+            tags:
+                - user
+            summary: 로그인
+            description: login
+            requestBody:
+                description: login
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UserRegistration"
+
+            responses:
+                201:
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/AuthApiResponse"
+                412:
+                    description: Fail
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorApiResponse"
+
+    /api/posts:
+        get:
+            tags:
+                - posts
+            summary: 모든 게시글 불러오기
+            responses:
+                "200":
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PostsApiResponse"
+                "400":
+                    description: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorApiResponse"
+
+        post:
+            tags:
+                - posts
+            summary: 게시글 작성
+            description: 게시글 작성
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            properties:
+                                title:
+                                    type: string
+                                    example: 안녕하세요 게시글 제목입니다
+                                content:
+                                    type: string
+                                    example: 안녕하세요 content입니다
+            responses:
+                201:
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                properties:
+                                    message:
+                                        type: string
+                                        example: 게시글 작성 성공~
+                400:
+                    description: Fail
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorApiResponse"
+            security:
+                - jwt_auth: []
+    /api/posts/:postId:
+        get:
+            tags:
+                - posts
+            summary: 특정 게시글 불러오기
+            description: 특정 게시글 불러오기
+            parameters:
+                - name: postId
+                  in: query
+                  description: 게시글 아이디
+                  schema:
+                      type: integer
+            responses:
+                200:
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Post"
+                400:
+                    description: Fail
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorApiResponse"
+        put:
+            tags:
+                - posts
+            summary: 게시글 수정
+            description: 게시글 수정
+            parameters:
+                - name: postId
+                  in: query
+                  description: 게시글 아이디
+                  schema:
+                      type: integer
+            requestBody:
+                required: true
+                content:
+                    contentType:
+                        schema:
+                            properties:
+                                title:
+                                    type: string
+                                    example: 안녕하세요 수정된 게시글 제목입니다
+                                content:
+                                    type: string
+                                    example: 안녕하세요 수정된 content입니다
+            responses:
+                200:
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                properties:
+                                    message:
+                                        type: string
+                                        example: 게시글 수정완료!
+                400:
+                    description: Fail
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorApiResponse"
+            security:
+                - jwt_auth: []
+        delete:
+            tags:
+                - posts
+            summary: 게시글 삭제
+            description: 게시글 삭제
+            parameters:
+                - name: postId
+                  in: query
+                  description: 게시글 아이디
+                  schema:
+                      type: integer
+            responses:
+                200:
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                properties:
+                                    message:
+                                        type: string
+                                        example: 게시글 삭제완료!
+                400:
+                    description: Fail
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorApiResponse"
+            security:
+                - jwt_auth: []
+    /api/comments/:postId:
+        post:
+            tags:
+                - comments
+            summary: 댓글 작성
+            description: 댓글 작성
+            parameters:
+                - name: postId
+                  in: query
+                  description: 게시글 아이디
+                  schema:
+                      type: integer
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            properties:
+                                comment:
+                                    type: string
+                                    example: 안녕하세요 댓글입니다
+            responses:
+                201:
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                properties:
+                                    message:
+                                        type: string
+                                        example: 댓글 작성 성공~
+                400:
+                    description: Fail
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorApiResponse"
+            security:
+                - jwt_auth: []
+        get:
+            tags:
+                - comments
+            summary: 해당 게시글 댓글 불러오기
+            description: 해당 게시글 댓글 불러오기
+            parameters:
+                - name: postId
+                  in: query
+                  description: 게시글 아이디
+                  schema:
+                      type: integer
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            properties:
+                                comment:
+                                    type: string
+                                    example: 안녕하세요 댓글입니다
+            responses:
+                201:
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/CommentsApiResponse"
+                400:
+                    description: Fail
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorApiResponse"
+    /api/comments/:commentId:
+        put:
+            tags:
+                - comments
+            summary: 댓글 수정
+            description: 댓글 수정
+            parameters:
+                - name: commentId
+                  in: query
+                  description: 댓글 아이디
+                  schema:
+                      type: integer
+            requestBody:
+                required: true
+                content:
+                    contentType:
+                        schema:
+                            properties:
+                                comment:
+                                    type: string
+                                    example: 안녕하세요 수정된 댓글입니다
+            responses:
+                200:
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                properties:
+                                    message:
+                                        type: string
+                                        example: 댓글 수정완료!
+                400:
+                    description: Fail
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorApiResponse"
+            security:
+                - jwt_auth: []
+        delete:
+            tags:
+                - comments
+            summary: 댓글 삭제
+            description: 댓글 삭제
+            parameters:
+                - name: commentId
+                  in: query
+                  description: 댓글 아이디
+                  schema:
+                      type: integer
+            responses:
+                200:
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                properties:
+                                    message:
+                                        type: string
+                                        example: 댓글 삭제완료!
+                400:
+                    description: Fail
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorApiResponse"
+            security:
+                - jwt_auth: []
+    /api/posts/:postId/like:
+        put:
+            tags:
+                - posts
+            summary: 게시글에 좋아요 누르기
+            description: 게시글에 좋아요 누르기
+            parameters:
+                - name: postId
+                  in: query
+                  description: 게시글 아이디
+                  schema:
+                      type: integer
+            responses:
+                200:
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                properties:
+                                    message:
+                                        type: string
+                                        example: 게시글에 좋아요를 눌렀습니다
+                400:
+                    description: Fail
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorApiResponse"
+            security:
+                - jwt_auth: []
+    /api/posts/list/like:
+        get:
+            tags:
+                - posts
+            summary: 특정 유저가 좋아요 누른 게시글 불러오기
+            responses:
+                "200":
+                    description: Success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PostsApiResponse"
+                "400":
+                    description: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorApiResponse"
+components:
+    schemas:
+        UserRegistration:
+            type: object
+            properties:
+                nickname:
+                    type: string
+                    minLength: 3
+                password:
+                    type: string
+                    minLength: 4
+            required:
+                - nickname
+                - password
+            example:
+                username: kingseungil
+                password: password
+        Post:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                title:
+                    type: string
+                content:
+                    type: string
+                likes:
+                    type: integer
+                createdAt:
+                    type: string
+                    format: date-time
+                    description: Creation date
+                    example: "2022-12-21T08:30:20.000Z"
+                updatedAt:
+                    type: string
+                    format: date-time
+                    description: Creation date
+                    example: "2022-12-22T08:30:20.000Z"
+                user_id:
+                    type: integer
+                    format: int64
+            required:
+                - id
+                - title
+                - content
+                - likes
+                - createdAt
+                - updatedAt
+                - userId
+            example:
+                id: 42
+                title: 스파르타
+                content: 과제 너무 어려워용
+                likes: 30
+                createdAt: "2022-12-21T08:30:20.000Z"
+                updatedAt: "2022-12-22T08:30:20.000Z"
+                user_id: 1
+        AuthApiResponse:
+            type: object
+            properties:
+                token:
+                    type: string
+                username:
+                    type: string
+            required:
+                - token
+                - username
+            example:
+                token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+                username: kingseungil
+        ErrorApiResponse:
+            type: object
+            properties:
+                message:
+                    type: string
+            required:
+                - message
+            example:
+                message: "Something went wrong 🤪"
+        PostsApiResponse:
+            type: array
+            items:
+                $ref: "#/components/schemas/Post"
+        Comments:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                comment:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                    description: Creation date
+                    example: "2022-12-21T08:30:20.000Z"
+                updatedAt:
+                    type: string
+                    format: date-time
+                    description: Creation date
+                    example: "2022-12-22T08:30:20.000Z"
+                user_id:
+                    type: integer
+                    format: int64
+                post_id:
+                    type: integer
+                    format: int64
+            required:
+                - id
+                - comment
+                - createdAt
+                - updatedAt
+                - user_id
+                - post_id
+            example:
+                id: 22
+                comment: 과제 너무 어려워용
+                createdAt: "2022-12-21T08:30:20.000Z"
+                updatedAt: "2022-12-22T08:30:20.000Z"
+                user_id: 1
+                post_id: 1
+        CommentsApiResponse:
+            type: array
+            items:
+                $ref: "#/components/schemas/Comments"
+    securitySchemes:
+        jwt_auth:
+            description: Bearer token authorization with JWT
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
