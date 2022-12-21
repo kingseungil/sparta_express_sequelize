@@ -118,7 +118,7 @@ router.delete("/posts/:postId/like", authMiddleware, async (req, res) => {
 });
 
 // 좋아요 게시글 조회
-router.get("/posts/a/like", authMiddleware, async (req, res) => {
+router.get("/posts/list/like", authMiddleware, async (req, res) => {
     const authUser = JSON.stringify(res.locals.user);
     const User2 = JSON.parse(authUser);
 
