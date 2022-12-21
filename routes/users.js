@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const { body, validationResult } = require("express-validator");
-// const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const { secretKey, option } = require("../config/secretKey");
 const authMiddleware = require("../middlewares/auth-middleware");
+const { Op } = require("sequelize");
+const { User } = require("../models");
 
 // 유효성 검사
 const validate = (req, res, next) => {
@@ -16,9 +17,6 @@ const validate = (req, res, next) => {
 };
 
 //~ 회원가입
-const { Op } = require("sequelize");
-const { User } = require("../models");
-
 router.post(
     "/signup",
     [
@@ -76,7 +74,6 @@ router.post("/login", async (req, res) => {
             nickname,
         },
     });
-    // console.log(user.id);
     if (!user || password !== user.password) {
         res.status(412).send({
             errorMessage: "닉네임 또는 패스워드를 확인해주세요",

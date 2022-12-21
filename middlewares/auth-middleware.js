@@ -4,7 +4,6 @@ const { secretKey } = require("../config/secretKey");
 
 module.exports = (req, res, next) => {
     const { authorization } = req.headers;
-    // console.log(authorization);
     // authType: Bearer , authToken: 토큰 값
     const [authType, authToken] = authorization.split(" ");
     console.log([authType, authToken]);
@@ -14,11 +13,6 @@ module.exports = (req, res, next) => {
         });
         return;
     }
-    // if (authToken) {
-    //     res.status(400).send({
-    //         errorMessage: "이미 로그인이 되어있습니다.",
-    //     });
-    // }
     try {
         const { userId } = jwt.verify(authToken, secretKey);
         console.log(userId);

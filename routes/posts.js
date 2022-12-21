@@ -1,10 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { Post, Like } = require("../models");
-// const { User } = require("../models");
 //~ 로그인 검사
 const authMiddleware = require("../middlewares/auth-middleware");
-// const bcrypt = require("bcrypt");
 
 /**
  * 전체 게시글 목록 조회 API
@@ -29,10 +27,9 @@ router.post("/posts", authMiddleware, async (req, res) => {
     });
 });
 
-// 게시글 조회 API
+// 특정 게시글 조회 API
 router.get("/posts/:postId", async (req, res) => {
     const { postId } = req.params;
-    console.log(postId);
     const post = await Post.findOne({
         where: {
             id: postId,
@@ -93,7 +90,6 @@ router.post("/posts/:postId/like", authMiddleware, async (req, res, next) => {
         await post2
             .addLiker(User.id)
             .then(Post.increment({ likes: 1 }, { where: { id: postId } }));
-        // await Post.update({ likes }, { where: { id: postId } });
         res.status(200).json({ message: "좋아요 완료" });
     } else {
         res.status(404).json({ message: "해당하는 게시글이 없습니다." });
