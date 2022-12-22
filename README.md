@@ -1,6 +1,7 @@
 # 내일배움캠프
 ## node 숙련주차 개인과제
 ### 📌sequelize.sync()를 사용하여 migrate하지않고 app.js실행하면 테이블생성됨
+### 📌config폴더 안에 secretKey.js 파일 만들어야 하고 .env파일도 만들어줘야함
 ![image](https://user-images.githubusercontent.com/109774037/209114985-aa160f29-22aa-4398-998b-98bf95b0ab5f.png)
 
 
