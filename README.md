@@ -1,7 +1,7 @@
 # 내일배움캠프
 ## node 숙련주차 개인과제
 ### 📌sequelize.sync()를 사용하여 migrate하지않고 app.js실행하면 테이블생성됨
-![image](https://user-images.githubusercontent.com/109774037/208811664-779b844f-a5cf-4774-844b-5893c70bf757.png)
+![image](https://user-images.githubusercontent.com/109774037/209114985-aa160f29-22aa-4398-998b-98bf95b0ab5f.png)
 
 
 
