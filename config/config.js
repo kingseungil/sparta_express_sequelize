@@ -5,7 +5,7 @@ module.exports = {
     development: {
         username: env.DB_USERNAME,
         password: env.DB_PASSWORD,
-        database: "sequelize",
+        database: "sequelize3",
         host: env.DB_HOST,
         dialect: "mysql",
     },

@@ -13,7 +13,7 @@ const authMiddleware = require("../middlewares/auth-middleware");
 router.get("/comments/:postId", async (req, res) => {
     const { postId } = req.params;
     const comments = await Comment.findAll({
-        attributes: ["comment", "user_id"],
+        attributes: ["id", "comment", "user_id"],
         where: { post_id: postId },
         order: [["createdAt", "DESC"]],
         include: {
@@ -21,7 +21,11 @@ router.get("/comments/:postId", async (req, res) => {
             attributes: ["nickname"],
         },
     });
-    res.status(200).json({ data: comments });
+    if (comments.length > 0) {
+        res.status(200).json({ data: comments });
+    } else {
+        res.status(400).json({ message: "댓글이 없습니다" });
+    }
 });
 
 /**

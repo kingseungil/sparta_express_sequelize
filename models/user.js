@@ -15,10 +15,11 @@ module.exports = (sequelize, DataTypes) => {
                 onDelete: "cascade",
                 onUpdate: "cascade",
             });
-            models.User.belongsToMany(models.Post, {
-                through: models.Like,
-                as: "Likers",
-            });
+            // models.User.belongsToMany(models.Post, {
+            //     through: models.Like,
+            //     as: "Likers",
+            // });
+            models.User.hasMany(models.Like, { foreignKey: "user_id" });
         }
     }
     User.init(

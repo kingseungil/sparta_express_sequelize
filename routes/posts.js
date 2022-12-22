@@ -94,33 +94,39 @@ router.post("/posts/:postId/like", authMiddleware, async (req, res, next) => {
     const authUser = JSON.stringify(res.locals.user);
     const User = JSON.parse(authUser);
     const post = await Post.findOne({ where: { id: postId } });
-
-    if (post) {
-        const post2 = await Post.findOne({ where: { id: postId } });
-        await post2
-            .addLiker(User.id)
-            .then(Post.increment({ likes: 1 }, { where: { id: postId } }));
-        res.status(200).json({ message: "좋아요 완료" });
-    } else {
-        res.status(404).json({ message: "해당하는 게시글이 없습니다." });
+    const like = await Like.findOne({
+        where: { post_id: postId, user_id: User.id },
+    });
+    try {
+        if (!post) {
+            return res
+                .status(404)
+                .json({ message: "게시글 존재하지 않습니다" });
+        }
+        if (!like) {
+            await Like.create({ post_id: postId, user_id: User.id }).then(
+                Post.increment({ likes: 1 }, { where: { id: postId } })
+            );
+            return res.json({ message: "좋아요 완료" });
+        } else {
+            like.destroy().then(
+                Post.decrement({ likes: 1 }, { where: { id: postId } })
+            );
+            res.json({ message: "좋아요 취소" });
+        }
+    } catch {
+        res.status(400).json({ message: "좋아요 실패" });
     }
-});
 
-// 게시글 좋아요 취소 API
-router.delete("/posts/:postId/like", authMiddleware, async (req, res) => {
-    const { postId } = req.params;
-    const authUser = JSON.stringify(res.locals.user);
-    const User = JSON.parse(authUser);
-    const post = await Post.findOne({ where: { id: postId } });
-    if (post) {
-        const post2 = await Post.findOne({ where: { id: postId } });
-        await post2
-            .removeLiker(User.id)
-            .then(Post.decrement({ likes: 1 }, { where: { id: postId } }));
-        res.status(200).json({ message: "좋아요 취소 완료" });
-    } else {
-        res.status(404).json({ message: "해당하는 게시글이 없습니다." });
-    }
+    // if (post) {
+    //     const post2 = await Post.findOne({ where: { id: postId } });
+    //     await post2
+    //         .addUser(User.id)
+    //         .then(Post.increment({ likes: 1 }, { where: { id: postId } }));
+    //     res.status(200).json({ message: "좋아요 완료" });
+    // } else {
+    //     res.status(404).json({ message: "해당하는 게시글이 없습니다." });
+    // }
 });
 
 // 좋아요 게시글 조회
@@ -128,17 +134,42 @@ router.get("/posts/list/like", authMiddleware, async (req, res) => {
     const authUser = JSON.stringify(res.locals.user);
     const User2 = JSON.parse(authUser);
 
-    const posts = await Post.findAll({
-        order: [["likes", "DESC"]],
+    //     const posts = await Post.findAll({
+    //         order: [["likes", "DESC"]],
+    //         include: [
+    //             {
+    //                 model: Like,
+    //                 where: { UserId: User2.id },
+    //                 // require: false, // left outer join
+    //             },
+    //         ],
+    //     });
+    //     res.status(200).json({ data: posts });
+    // });
+    const likePosts = await Like.findAll({
+        where: { user_id: User2.id },
         include: [
             {
-                model: Like,
-                where: { UserId: User2.id },
-                // require: false, // left outer join
+                model: Post,
+                attributes: ["title", "content", "likes"],
+                include: [
+                    {
+                        model: User,
+                        attributes: ["nickname"],
+                    },
+                ],
             },
         ],
     });
-    res.status(200).json({ data: posts });
+    // console.log(likePosts);
+    if (likePosts.length > 0) {
+        return res.status(200).json({ data: likePosts });
+    } else {
+        // if (likePosts.length == 0) {
+        return res
+            .status(404)
+            .json({ message: "좋아요한 게시글이 존재하지 않습니다" });
+    }
 });
 
 module.exports = router;
