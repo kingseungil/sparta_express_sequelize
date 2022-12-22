@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { Comment, Post } = require("../models");
+const { Comment, Post, User } = require("../models");
 
 const authMiddleware = require("../middlewares/auth-middleware");
 
@@ -16,6 +16,10 @@ router.get("/comments/:postId", async (req, res) => {
         attributes: ["comment", "user_id"],
         where: { post_id: postId },
         order: [["createdAt", "DESC"]],
+        include: {
+            model: User,
+            attributes: ["nickname"],
+        },
     });
     res.status(200).json({ data: comments });
 });

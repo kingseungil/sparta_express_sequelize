@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { Post, Like } = require("../models");
+const { Post, Like, User } = require("../models");
 //~ 로그인 검사
 const authMiddleware = require("../middlewares/auth-middleware");
 
@@ -11,6 +11,10 @@ const authMiddleware = require("../middlewares/auth-middleware");
 router.get("/posts", async (req, res) => {
     const posts = await Post.findAll({
         order: [["createdAt", "DESC"]],
+        include: {
+            model: User,
+            attributes: ["nickname"],
+        },
     });
     res.status(200).json({ data: posts });
 });
@@ -36,7 +40,13 @@ router.get("/posts/:postId", async (req, res) => {
         },
     });
     if (post) {
-        const result = await Post.findOne({ where: { id: postId } });
+        const result = await Post.findOne({
+            where: { id: postId },
+            include: {
+                model: User,
+                attributes: ["nickname"],
+            },
+        });
         res.status(200).json({ data: result });
     } else {
         res.status(404).json({
