@@ -71,7 +71,7 @@ router.put("/comments/:commentId", authMiddleware, async (req, res) => {
     const comment2 = await Comment.findOne({
         where: { id: commentId },
     });
-    if (comment2 && comment2.user_id == authUser.id) {
+    if (comment2 && comment2.user_id === authUser.id) {
         await Comment.update({ comment }, { where: { id: commentId } });
         res.status(201).json({ Message: "댓글을 수정하였습니다." });
     } else {
@@ -89,7 +89,7 @@ router.delete("/comments/:commentId", authMiddleware, async (req, res) => {
     const { commentId } = req.params;
     const authUser = res.locals.user;
     const comment = await Comment.findOne({ where: { id: commentId } });
-    if (comment && comment.user_id == authUser.id) {
+    if (comment && comment.user_id === authUser.id) {
         await Comment.destroy({ where: { id: commentId } });
         return res.status(200).json({ message: "댓글을 삭제하였습니다." });
     } else {

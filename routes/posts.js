@@ -62,7 +62,7 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
     const { title, content } = req.body;
     const authUser = res.locals.user;
     const post = await Post.findOne({ where: { id: postId } });
-    if (post && post.user_id == authUser.id) {
+    if (post && post.user_id === authUser.id) {
         await Post.update({ title, content }, { where: { id: postId } });
         res.status(201).json({ message: "게시글을 수정하였습니다." });
     } else {
@@ -77,7 +77,7 @@ router.delete("/posts/:postId", authMiddleware, async (req, res) => {
     const { postId } = req.params;
     const authUser = res.locals.user;
     const post = await Post.findOne({ where: { id: postId } });
-    if (post && post.user_id == authUser.id) {
+    if (post && post.user_id === authUser.id) {
         await Post.destroy({ where: { id: postId } });
         res.status(200).json({ message: "게시글을 삭제하였습니다." });
     } else {
