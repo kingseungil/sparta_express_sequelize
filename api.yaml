@@ -369,7 +369,7 @@ paths:
             security:
                 - jwt_auth: []
     /api/posts/:postId/like:
-        put:
+        post:
             tags:
                 - posts
             summary: 게시글에 좋아요 누르기
