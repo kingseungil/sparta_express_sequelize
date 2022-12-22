@@ -50,7 +50,7 @@ router.get("/posts/:postId", async (req, res) => {
         res.status(200).json({ data: result });
     } else {
         res.status(404).json({
-            message: "해당하는 게시글이 없습니다~",
+            errorMessage: "해당하는 게시글이 없습니다~",
         });
     }
 });
@@ -68,7 +68,7 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
         await Post.update({ title, content }, { where: { id: postId } });
         res.status(201).json({ message: "게시글을 수정하였습니다." });
     } else {
-        res.status(400).json({ message: "게시글이 존재하지 않습니다" });
+        res.status(400).json({ errorMessage: "게시글이 존재하지 않습니다" });
     }
 });
 
@@ -84,7 +84,7 @@ router.delete("/posts/:postId", authMiddleware, async (req, res) => {
         await Post.destroy({ where: { id: postId } });
         res.status(200).json({ message: "게시글을 삭제하였습니다." });
     } else {
-        res.status(404).json({ message: "해당하는 게시글이 없습니다." });
+        res.status(404).json({ errorMessage: "해당하는 게시글이 없습니다." });
     }
 });
 
@@ -101,7 +101,7 @@ router.post("/posts/:postId/like", authMiddleware, async (req, res, next) => {
         if (!post) {
             return res
                 .status(404)
-                .json({ message: "게시글 존재하지 않습니다" });
+                .json({ errorMessage: "게시글 존재하지 않습니다" });
         }
         if (!like) {
             await Like.create({ post_id: postId, user_id: authUser.id }).then(
@@ -115,7 +115,7 @@ router.post("/posts/:postId/like", authMiddleware, async (req, res, next) => {
             res.json({ message: "좋아요 취소" });
         }
     } catch {
-        res.status(400).json({ message: "좋아요 실패" });
+        res.status(400).json({ errorMessage: "좋아요 실패" });
     }
 
     // if (post) {
@@ -168,7 +168,7 @@ router.get("/posts/list/like", authMiddleware, async (req, res) => {
         // if (likePosts.length == 0) {
         return res
             .status(404)
-            .json({ message: "좋아요한 게시글이 존재하지 않습니다" });
+            .json({ errorMessage: "좋아요한 게시글이 존재하지 않습니다" });
     }
 });
 
