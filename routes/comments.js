@@ -34,8 +34,7 @@ router.get("/comments/:postId", async (req, res) => {
  */
 router.post("/comments/:postId", authMiddleware, async (req, res) => {
     const { postId } = req.params;
-    const user = JSON.stringify(res.locals.user);
-    const authUser = JSON.parse(user);
+    const authUser = res.locals.user;
     const { comment } = req.body;
     const post = await Post.findOne({ where: { id: postId } });
     if (!post) {
@@ -62,8 +61,7 @@ router.post("/comments/:postId", authMiddleware, async (req, res) => {
 router.put("/comments/:commentId", authMiddleware, async (req, res) => {
     const { commentId } = req.params;
     const { comment } = req.body;
-    const user = JSON.stringify(res.locals.user);
-    const authUser = JSON.parse(user);
+    const authUser = res.locals.user;
     if (!comment) {
         return res.status(400).json({
             success: false,
@@ -89,8 +87,7 @@ router.put("/comments/:commentId", authMiddleware, async (req, res) => {
  */
 router.delete("/comments/:commentId", authMiddleware, async (req, res) => {
     const { commentId } = req.params;
-    const user = JSON.stringify(res.locals.user);
-    const authUser = JSON.parse(user);
+    const authUser = res.locals.user;
     const comment = await Comment.findOne({ where: { id: commentId } });
     if (comment && comment.user_id == authUser.id) {
         await Comment.destroy({ where: { id: commentId } });

@@ -22,8 +22,7 @@ router.get("/posts", async (req, res) => {
 // 게시글 작성 API
 router.post("/posts", authMiddleware, async (req, res) => {
     const { title, content, likes } = req.body;
-    const user = JSON.stringify(res.locals.user);
-    const authUser = JSON.parse(user);
+    const authUser = res.locals.user;
     await Post.create({ title, content, user_id: authUser.id, likes });
 
     res.status(201).json({
@@ -61,8 +60,7 @@ router.get("/posts/:postId", async (req, res) => {
 router.put("/posts/:postId", authMiddleware, async (req, res) => {
     const { postId } = req.params;
     const { title, content } = req.body;
-    const user = JSON.stringify(res.locals.user);
-    const authUser = JSON.parse(user);
+    const authUser = res.locals.user;
     const post = await Post.findOne({ where: { id: postId } });
     if (post && post.user_id == authUser.id) {
         await Post.update({ title, content }, { where: { id: postId } });
@@ -77,8 +75,7 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
  */
 router.delete("/posts/:postId", authMiddleware, async (req, res) => {
     const { postId } = req.params;
-    const user = JSON.stringify(res.locals.user);
-    const authUser = JSON.parse(user);
+    const authUser = res.locals.user;
     const post = await Post.findOne({ where: { id: postId } });
     if (post && post.user_id == authUser.id) {
         await Post.destroy({ where: { id: postId } });
@@ -91,8 +88,7 @@ router.delete("/posts/:postId", authMiddleware, async (req, res) => {
 // 게시글 좋아요 API
 router.post("/posts/:postId/like", authMiddleware, async (req, res, next) => {
     const { postId } = req.params;
-    const user = JSON.stringify(res.locals.user);
-    const authUser = JSON.parse(user);
+    const authUser = res.locals.user;
     const post = await Post.findOne({ where: { id: postId } });
     const like = await Like.findOne({
         where: { post_id: postId, user_id: authUser.id },
@@ -131,8 +127,7 @@ router.post("/posts/:postId/like", authMiddleware, async (req, res, next) => {
 
 // 좋아요 게시글 조회
 router.get("/posts/list/like", authMiddleware, async (req, res) => {
-    const user = JSON.stringify(res.locals.user);
-    const authUser = JSON.parse(user);
+    const authUser = res.locals.user;
 
     //     const posts = await Post.findAll({
     //         order: [["likes", "DESC"]],
@@ -147,6 +142,7 @@ router.get("/posts/list/like", authMiddleware, async (req, res) => {
     //     res.status(200).json({ data: posts });
     // });
     const likePosts = await Like.findAll({
+        attributes: ["post_id", "user_id"],
         where: { user_id: authUser.id },
         include: [
             {
