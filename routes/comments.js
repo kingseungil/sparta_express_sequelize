@@ -34,8 +34,8 @@ router.get("/comments/:postId", async (req, res) => {
  */
 router.post("/comments/:postId", authMiddleware, async (req, res) => {
     const { postId } = req.params;
-    const authUser = JSON.stringify(res.locals.user);
-    const User2 = JSON.parse(authUser);
+    const user = JSON.stringify(res.locals.user);
+    const authUser = JSON.parse(user);
     const { comment } = req.body;
     const post = await Post.findOne({ where: { id: postId } });
     if (!post) {
@@ -49,7 +49,7 @@ router.post("/comments/:postId", authMiddleware, async (req, res) => {
             message: "댓글 내용을 입력해주세요",
         });
     }
-    await Comment.create({ comment, post_id: postId, user_id: User2.id });
+    await Comment.create({ comment, post_id: postId, user_id: authUser.id });
     res.status(201).json({
         message: "댓글을 생성하였습니다",
     });
@@ -62,8 +62,8 @@ router.post("/comments/:postId", authMiddleware, async (req, res) => {
 router.put("/comments/:commentId", authMiddleware, async (req, res) => {
     const { commentId } = req.params;
     const { comment } = req.body;
-    const authUser = JSON.stringify(res.locals.user);
-    const User2 = JSON.parse(authUser);
+    const user = JSON.stringify(res.locals.user);
+    const authUser = JSON.parse(user);
     if (!comment) {
         return res.status(400).json({
             success: false,
@@ -73,7 +73,7 @@ router.put("/comments/:commentId", authMiddleware, async (req, res) => {
     const comment2 = await Comment.findOne({
         where: { id: commentId },
     });
-    if (comment2 && comment2.user_id == User2.id) {
+    if (comment2 && comment2.user_id == authUser.id) {
         await Comment.update({ comment }, { where: { id: commentId } });
         res.status(201).json({ message: "댓글을 수정하였습니다." });
     } else {
@@ -89,10 +89,10 @@ router.put("/comments/:commentId", authMiddleware, async (req, res) => {
  */
 router.delete("/comments/:commentId", authMiddleware, async (req, res) => {
     const { commentId } = req.params;
-    const authUser = JSON.stringify(res.locals.user);
-    const User2 = JSON.parse(authUser);
+    const user = JSON.stringify(res.locals.user);
+    const authUser = JSON.parse(user);
     const comment = await Comment.findOne({ where: { id: commentId } });
-    if (comment && comment.user_id == User2.id) {
+    if (comment && comment.user_id == authUser.id) {
         await Comment.destroy({ where: { id: commentId } });
         return res.status(200).json({ message: "댓글을 삭제하였습니다." });
     } else {

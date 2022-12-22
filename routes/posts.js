@@ -22,9 +22,9 @@ router.get("/posts", async (req, res) => {
 // 게시글 작성 API
 router.post("/posts", authMiddleware, async (req, res) => {
     const { title, content, likes } = req.body;
-    const authUser = JSON.stringify(res.locals.user);
-    const User = JSON.parse(authUser);
-    await Post.create({ title, content, user_id: User.id, likes });
+    const user = JSON.stringify(res.locals.user);
+    const authUser = JSON.parse(user);
+    await Post.create({ title, content, user_id: authUser.id, likes });
 
     res.status(201).json({
         message: "게시글 작성완료!",
@@ -61,10 +61,10 @@ router.get("/posts/:postId", async (req, res) => {
 router.put("/posts/:postId", authMiddleware, async (req, res) => {
     const { postId } = req.params;
     const { title, content } = req.body;
-    const authUser = JSON.stringify(res.locals.user);
-    const User2 = JSON.parse(authUser);
+    const user = JSON.stringify(res.locals.user);
+    const authUser = JSON.parse(user);
     const post = await Post.findOne({ where: { id: postId } });
-    if (post && post.user_id == User2.id) {
+    if (post && post.user_id == authUser.id) {
         await Post.update({ title, content }, { where: { id: postId } });
         res.status(201).json({ message: "게시글을 수정하였습니다." });
     } else {
@@ -77,10 +77,10 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
  */
 router.delete("/posts/:postId", authMiddleware, async (req, res) => {
     const { postId } = req.params;
-    const authUser = JSON.stringify(res.locals.user);
-    const User2 = JSON.parse(authUser);
+    const user = JSON.stringify(res.locals.user);
+    const authUser = JSON.parse(user);
     const post = await Post.findOne({ where: { id: postId } });
-    if (post && post.user_id == User2.id) {
+    if (post && post.user_id == authUser.id) {
         await Post.destroy({ where: { id: postId } });
         res.status(200).json({ message: "게시글을 삭제하였습니다." });
     } else {
@@ -91,11 +91,11 @@ router.delete("/posts/:postId", authMiddleware, async (req, res) => {
 // 게시글 좋아요 API
 router.post("/posts/:postId/like", authMiddleware, async (req, res, next) => {
     const { postId } = req.params;
-    const authUser = JSON.stringify(res.locals.user);
-    const User = JSON.parse(authUser);
+    const user = JSON.stringify(res.locals.user);
+    const authUser = JSON.parse(user);
     const post = await Post.findOne({ where: { id: postId } });
     const like = await Like.findOne({
-        where: { post_id: postId, user_id: User.id },
+        where: { post_id: postId, user_id: authUser.id },
     });
     try {
         if (!post) {
@@ -104,7 +104,7 @@ router.post("/posts/:postId/like", authMiddleware, async (req, res, next) => {
                 .json({ message: "게시글 존재하지 않습니다" });
         }
         if (!like) {
-            await Like.create({ post_id: postId, user_id: User.id }).then(
+            await Like.create({ post_id: postId, user_id: authUser.id }).then(
                 Post.increment({ likes: 1 }, { where: { id: postId } })
             );
             return res.json({ message: "좋아요 완료" });
@@ -131,8 +131,8 @@ router.post("/posts/:postId/like", authMiddleware, async (req, res, next) => {
 
 // 좋아요 게시글 조회
 router.get("/posts/list/like", authMiddleware, async (req, res) => {
-    const authUser = JSON.stringify(res.locals.user);
-    const User2 = JSON.parse(authUser);
+    const user = JSON.stringify(res.locals.user);
+    const authUser = JSON.parse(user);
 
     //     const posts = await Post.findAll({
     //         order: [["likes", "DESC"]],
@@ -147,7 +147,7 @@ router.get("/posts/list/like", authMiddleware, async (req, res) => {
     //     res.status(200).json({ data: posts });
     // });
     const likePosts = await Like.findAll({
-        where: { user_id: User2.id },
+        where: { user_id: authUser.id },
         include: [
             {
                 model: Post,
