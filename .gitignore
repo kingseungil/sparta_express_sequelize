@@ -146,3 +146,4 @@ dist
 .vscode
 config/secretKey.js
 env
+.logs

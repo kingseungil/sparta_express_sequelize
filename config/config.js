@@ -8,6 +8,7 @@ module.exports = {
         database: "sequelize3",
         host: env.DB_HOST,
         dialect: "mysql",
+        logging: false,
     },
     test: {
         username: "root",
