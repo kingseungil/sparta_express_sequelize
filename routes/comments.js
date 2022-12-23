@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { Comment, Post, User } = require("../models");
+const logging = require("../middlewares/logging");
 
 const authMiddleware = require("../middlewares/auth-middleware");
 
@@ -10,7 +11,7 @@ const authMiddleware = require("../middlewares/auth-middleware");
  * 작성 날짜 기준으로 내림차순 정렬
  * ! 목록 => 페이지네이션 있으면 좋음
  */
-router.get("/comments/:postId", async (req, res) => {
+router.get("/comments/:postId", logging, async (req, res) => {
     const { postId } = req.params;
     const comments = await Comment.findAll({
         attributes: ["id", "comment", "user_id"],
@@ -32,7 +33,7 @@ router.get("/comments/:postId", async (req, res) => {
  * 댓글 작성 API
  * 댓글 내용을 비워둔 채 댓글 작성 APi를 호출하면 "댓글 내용을 입력해주세요"라는 메세지를 return
  */
-router.post("/comments/:postId", authMiddleware, async (req, res) => {
+router.post("/comments/:postId", logging, authMiddleware, async (req, res) => {
     const { postId } = req.params;
     const authUser = res.locals.user;
     const { comment } = req.body;
@@ -58,45 +59,55 @@ router.post("/comments/:postId", authMiddleware, async (req, res) => {
  * 댓글 수정 API
  * 댓글 내용을 비워둔 채 댓글 수정 API를 호출하면 "댓글 내용을 입력해주세요" 라는 메세지를 return
  */
-router.put("/comments/:commentId", authMiddleware, async (req, res) => {
-    const { commentId } = req.params;
-    const { comment } = req.body;
-    const authUser = res.locals.user;
-    if (!comment) {
-        return res.status(400).json({
-            success: false,
-            errorMessage: "댓글 내용을 입력해주세요",
+router.put(
+    "/comments/:commentId",
+    logging,
+    authMiddleware,
+    async (req, res) => {
+        const { commentId } = req.params;
+        const { comment } = req.body;
+        const authUser = res.locals.user;
+        if (!comment) {
+            return res.status(400).json({
+                success: false,
+                errorMessage: "댓글 내용을 입력해주세요",
+            });
+        }
+        const comment2 = await Comment.findOne({
+            where: { id: commentId },
         });
+        if (comment2 && comment2.user_id === authUser.id) {
+            await Comment.update({ comment }, { where: { id: commentId } });
+            res.status(201).json({ Message: "댓글을 수정하였습니다." });
+        } else {
+            return res.status(404).json({
+                errorMessage: "해당하는 댓글이 없습니다",
+            });
+        }
     }
-    const comment2 = await Comment.findOne({
-        where: { id: commentId },
-    });
-    if (comment2 && comment2.user_id === authUser.id) {
-        await Comment.update({ comment }, { where: { id: commentId } });
-        res.status(201).json({ Message: "댓글을 수정하였습니다." });
-    } else {
-        return res.status(404).json({
-            errorMessage: "해당하는 댓글이 없습니다",
-        });
-    }
-});
+);
 
 /**
  * 댓글 삭제 API
  * 원하는 댓글 삭제
  */
-router.delete("/comments/:commentId", authMiddleware, async (req, res) => {
-    const { commentId } = req.params;
-    const authUser = res.locals.user;
-    const comment = await Comment.findOne({ where: { id: commentId } });
-    if (comment && comment.user_id === authUser.id) {
-        await Comment.destroy({ where: { id: commentId } });
-        return res.status(200).json({ message: "댓글을 삭제하였습니다." });
-    } else {
-        return res.status(404).json({
-            errorMessage: "해당하는 댓글이 없습니다",
-        });
+router.delete(
+    "/comments/:commentId",
+    logging,
+    authMiddleware,
+    async (req, res) => {
+        const { commentId } = req.params;
+        const authUser = res.locals.user;
+        const comment = await Comment.findOne({ where: { id: commentId } });
+        if (comment && comment.user_id === authUser.id) {
+            await Comment.destroy({ where: { id: commentId } });
+            return res.status(200).json({ message: "댓글을 삭제하였습니다." });
+        } else {
+            return res.status(404).json({
+                errorMessage: "해당하는 댓글이 없습니다",
+            });
+        }
     }
-});
+);
 
 module.exports = router;

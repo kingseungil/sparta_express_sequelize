@@ -4,6 +4,7 @@ const { body, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const { secretKey, option } = require("../config/secretKey");
 const authMiddleware = require("../middlewares/auth-middleware");
+const logging = require("../middlewares/logging");
 const { Op } = require("sequelize");
 const { User } = require("../models");
 const bcrypt = require("bcrypt");
@@ -20,6 +21,7 @@ const validate = (req, res, next) => {
 //~ 회원가입
 router.post(
     "/signup",
+    logging,
     [
         body("nickname")
             .trim()
@@ -70,7 +72,7 @@ router.post(
 );
 
 //~ 로그인
-router.post("/login", async (req, res) => {
+router.post("/login", logging, async (req, res) => {
     const { nickname, password } = req.body;
     const user = await User.findOne({
         where: {
@@ -96,7 +98,7 @@ router.post("/login", async (req, res) => {
 });
 
 //~ 내 정보 가져오기
-router.get("/users/me", authMiddleware, async (req, res) => {
+router.get("/users/me", logging, authMiddleware, async (req, res) => {
     res.json({ user: res.locals.user });
 });
 
