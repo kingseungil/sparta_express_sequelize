@@ -6,6 +6,7 @@ const { secretKey, option } = require("../config/secretKey");
 const authMiddleware = require("../middlewares/auth-middleware");
 const { Op } = require("sequelize");
 const { User } = require("../models");
+const bcrypt = require("bcrypt");
 
 // 유효성 검사
 const validate = (req, res, next) => {
@@ -58,7 +59,10 @@ router.post(
                 errorMessage: "중복된 닉네임입니다.",
             });
         }
-        await User.create({ nickname, password });
+        await User.create({
+            nickname,
+            password: bcrypt.hashSync(password, 10),
+        });
         res.status(201).send({
             message: "회원가입 완료!",
         });
@@ -68,26 +72,27 @@ router.post(
 //~ 로그인
 router.post("/login", async (req, res) => {
     const { nickname, password } = req.body;
-
     const user = await User.findOne({
         where: {
             nickname,
         },
     });
-    if (!user || password !== user.password) {
-        res.status(412).send({
-            errorMessage: "닉네임 또는 패스워드를 확인해주세요",
-        });
-        return;
-    }
     const payload = {
         userId: user.id,
         nickname: user.nickname,
     };
-    res.send({
-        token: jwt.sign(payload, secretKey, option),
-        nickname,
-    });
+    const passwordValid = bcrypt.compareSync(password, user.password);
+    if (!user || !passwordValid) {
+        res.status(412).send({
+            errorMessage: "닉네임 또는 패스워드를 확인해주세요",
+        });
+        return;
+    } else {
+        res.send({
+            token: jwt.sign(payload, secretKey, option),
+            nickname,
+        });
+    }
 });
 
 //~ 내 정보 가져오기
